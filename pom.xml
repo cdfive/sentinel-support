@@ -16,6 +16,9 @@
         <!-- dependency -->
         <sentinel.version>0.2.0-SNAPSHOT</sentinel.version>
         <spring.version>4.3.14.RELEASE</spring.version>
+        <spring-boot.version>1.5.10.RELEASE</spring-boot.version>
+        <druid.version>1.0.28</druid.version>
+        <mysql.version>5.1.39</mysql.version>
         <!--<activemq.version>5.15.5</activemq.version>-->
         <!--<activemq.version>5.5.1</activemq.version>-->
         <activemq-core.version>5.7.0</activemq-core.version>
@@ -44,6 +47,11 @@
         </dependency>
         <dependency>
             <groupId>com.alibaba.csp</groupId>
+            <artifactId>sentinel-datasource-jdbc</artifactId>
+            <version>${sentinel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba.csp</groupId>
             <artifactId>sentinel-transport-simple-http</artifactId>
             <version>${sentinel.version}</version>
         </dependency>
@@ -54,11 +62,49 @@
         </dependency>
 
         <!-- spring -->
+        <!--<dependency>-->
+            <!--<groupId>org.springframework</groupId>-->
+            <!--<artifactId>spring-context</artifactId>-->
+            <!--<version>${spring.version}</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
+            <artifactId>spring-jdbc</artifactId>
             <version>${spring.version}</version>
         </dependency>
+
+        <!-- spring-boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <version>${spring-boot.version}</version>
+            <!--<optional>true</optional>-->
+        </dependency>
+
+        <!-- druid -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
+
+        <!-- mysql -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.version}</version>
+        </dependency>
+
 
         <!-- activemq -->
         <dependency>
