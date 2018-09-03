@@ -25,7 +25,7 @@ sentinel学习以及方便接入
 
 ### 2.resource目录下增加sentinel.properties配置文件
 
-* jdbc作为数据源**(推荐)**：
+* jdbc作为数据源(**推荐**)：
 
 ```
 # 是否启用,默认true
