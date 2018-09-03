@@ -57,11 +57,14 @@ sentinel.dataSource.type=jdbc
 # dataSource类型是zookeeper的配置
 # zookeeper地址
 sentinel.dataSource.zookeeper.url=zk.test.winxuan.io:8900
-# dubbo规则路径,不同规则后面路径规定,流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
+# dubbo规则根path,3种类型规则path：流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
 sentinel.dubbo.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.dubbo.sentinel.rule
-# activemq规则路径,不同规则后面路径固定,流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
+# activemq规则根path,3种类型规则path：流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
 sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.sentinel.rule
 ```
+
+> 目前zookeeper上配置规则，不同类型规则path固定：流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system</br>
+一个应用的某类型规则列表，是一个大的json array // 考虑如何改进？
 
 ### 3.根据业务场景，在数据库或zookpeer的配置中心界面上添加、修改规则即可
 
@@ -94,6 +97,6 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 
 > 插件使用zookeeper数据源；其中zookeeper地址和规则path请根据实际情况修改；/flow、/degrade、/system为固定后缀
 
-* ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加参数</br>
+* ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加参数：</br>
 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=ActiveMQ
 
