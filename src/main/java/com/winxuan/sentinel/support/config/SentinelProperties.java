@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 提供sentinel.properties配置文件支持：包括启用、指定数据源
+ * 暂时仅支持jdbc、zookeeper数据源
+ *
  * @author cdfive
  * @date 2018-08-29
  */
@@ -37,19 +40,20 @@ import java.util.Map;
 @PropertySource(value = "classpath:sentinel.properties", ignoreResourceNotFound = true)
 public class SentinelProperties {
 
-    private static final String FLOW_PATH = "flow";
-
-    private static final String DEGRADE_PATH = "degrade";
-
-    private static final String SYSTEM_PATH = "system";
-
+    /**数据源类型常量*/
     private static final String DATA_SOURCE_TYPE_JDBC = "jdbc";
-
     private static final String DATA_SOURCE_TYPE_ZOOKEEPER = "zookeeper";
 
+    /**3种类型规则在zookeeper节点路径*/
+    private static final String FLOW_PATH = "flow";
+    private static final String DEGRADE_PATH = "degrade";
+    private static final String SYSTEM_PATH = "system";
+
+    /**是否启用sentinel支持，默认true*/
     @Value("${sentinel.enable:true}")
     private boolean enable;
 
+    /**数据源类型，jdbc或zookeeper，默认jdbc*/
     @Value("${sentinel.dataSource.type:jdbc}")
     private String dataSourceType;
 
@@ -67,20 +71,20 @@ public class SentinelProperties {
     private String password;
 
     @Value("${sentinel.dataSource.jdbc.appName:#{null}}")
-    private String appName;
+    private String appName;// 应用名称，对应sentinel_app表中的列app_name
 
     @Value("${sentinel.dataSource.jdbc.ruleRefreshSec:#{null}}")
-    private Long ruleRefreshSec;
+    private Long ruleRefreshSec;// 定时刷新规则的时间间隔(秒),默认30秒
 
     /******************zookeeper datasource配置******************/
     @Value("${sentinel.dataSource.zookeeper.url:localhost:2181}")
-    private String zookeeperUrl;
+    private String zookeeperUrl;// zookeeper地址
 
     @Value("${sentinel.dubbo.path:#{null}}")
-    private String dubboPath;
+    private String dubboPath;// dubbo规则路径,不同规则后面路径规定,流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
 
     @Value("${sentinel.activemq.path:#{null}}")
-    private String activemqPath;
+    private String activemqPath;// activemq规则路径,不同规则后面路径固定,流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system
 
     @PostConstruct
     public void init() {

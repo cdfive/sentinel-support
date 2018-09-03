@@ -1,6 +1,7 @@
 package com.winxuan.sentinel.support;
 
 /**
+ * 常量类
  * @author cdfive
  * @date 2018-08-30
  */

@@ -16,6 +16,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import javax.jms.Message;
 
 /**
+ * JMS的MessageListener.onMessage，通过aspectj的aop方式加入sentinel埋点
  * @author cdfive
  * @date 2018-08-29
  */
@@ -25,7 +26,6 @@ public class MessageListenerAspect {
 
     /**资源名称后缀，资源名称=队列名称_receive*/
     private static final String RECEIVE = "_receive";
-
 
     public MessageListenerAspect() {
         log.info(SentinelSupportConstant.LOG_PRIFEX + "MessageListenerAspect init");
@@ -37,12 +37,6 @@ public class MessageListenerAspect {
 
     @Around("pointCutOnMessage(message)")
     public void aroundOnMessage(ProceedingJoinPoint pjp, Message message) throws Throwable {
-//        if (pjp.getTarget().getClass().getName().equals("org.springframework.jms.listener.SimpleMessageListenerContainer$2")) {
-//            pjp.proceed();
-//            return;
-//        }
-
-//        String name = ((Queue)message.getJMSDestination()).getQueueName();
         String name = ((ActiveMQMessage) message).getDestination().getPhysicalName() + RECEIVE;
 
         Entry entry = null;
