@@ -71,16 +71,16 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 
 > MessageListenerAspect中，接收消息埋点的资源名称=队列名称+"_receive
 
-相关类：
+* 相关类：
     com.winxuan.sentinel.support.activemq.plugin.SentinelBrokerPlugin
     com.winxuan.sentinel.support.activemq.plugin.SentinelBrokerFilter
 
-打包：执行assembly插件，assembly:assembly，target目录下会生成sentinelBrokerPlugin.jar，该jar仅包含了上面两个类
+* 打包：执行assembly插件，assembly:assembly，target目录下会生成sentinelBrokerPlugin.jar，该jar仅包含了上面两个类
 
 > 使用package打包不会生成sentinelBrokerPlugin.jar，因为pom.xml的assembly插件配置，<phase>package</phase>注释掉了，
   打开注释会影响到install，暂时没找到解决方法T_T!
     
-运行：修改ActiveMQ/conf/activemq.xml文件，在broker标签下增加如下配置：
+* 运行：修改ActiveMQ/conf/activemq.xml文件，在broker标签下增加如下配置：
 ```xml
 <plugins>
     <bean xmlns="http://www.springframework.org/schema/beans" id="sentinelBrokerPlugin" class="com.winxuan.sentinel.support.activemq.plugin.SentinelBrokerPlugin">
@@ -93,3 +93,6 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 ```
 
 > 插件使用zookeeper数据源；其中zookeeper地址和规则path请根据实际情况修改；/flow、/degrade、/system为固定后缀
+
+* ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加-Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=ActiveMQ
+
