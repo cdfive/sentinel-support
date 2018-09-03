@@ -100,3 +100,8 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 * ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加参数：</br>
 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=ActiveMQ
 
+> 测试使用ActiveMQ的版本：5.15.5
+
+
+## 参考示例
+sentinel-support-demo的[README.md](https://github.com/cdfive/sentinel-support-demo)
