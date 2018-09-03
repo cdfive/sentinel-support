@@ -28,10 +28,10 @@ sentinel学习以及方便接入
 * **jdbc作为数据源(推荐)**：
 
 ```
-# 是否启用,默认false
+# 是否启用,默认true
 sentinel.enable=true
 
-# dataSource类型,zookeeper或jdbc
+# dataSource类型,zookeeper或jdbc,默认jdbc
 sentinel.dataSource.type=jdbc
 
 # sentinel_db数据库连接
@@ -48,10 +48,10 @@ sentinel.dataSource.jdbc.ruleRefreshSec=30
 * **zookeeper作为数据源**:
 
 ```
-# 是否启用,默认false
+# 是否启用,默认true
 sentinel.enable=true
 
-# dataSource类型,zookeeper或jdbc
+# dataSource类型,zookeeper或jdbc,默认jdbc
 sentinel.dataSource.type=jdbc
 
 # dataSource类型是zookeeper的配置

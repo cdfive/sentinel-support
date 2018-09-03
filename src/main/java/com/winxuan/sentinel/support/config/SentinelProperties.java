@@ -47,10 +47,10 @@ public class SentinelProperties {
 
     private static final String DATA_SOURCE_TYPE_ZOOKEEPER = "zookeeper";
 
-    @Value("${sentinel.enable:false}")
+    @Value("${sentinel.enable:true}")
     private boolean enable;
 
-    @Value("${sentinel.dataSource.type:zookeeper}")
+    @Value("${sentinel.dataSource.type:jdbc}")
     private String dataSourceType;
 
     /******************jdbc datasource配置******************/
