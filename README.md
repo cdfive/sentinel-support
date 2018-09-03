@@ -94,6 +94,6 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 
 > 插件使用zookeeper数据源；其中zookeeper地址和规则path请根据实际情况修改；/flow、/degrade、/system为固定后缀
 
-* ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加参数
+* ActiveMQ接入sentinel控制台：修改ActiveMQ/bin/activemq.bat脚本，%ACTIVEMQ_OPTS%后面增加参数</br>
 -Dcsp.sentinel.dashboard.server=localhost:8080 -Dproject.name=ActiveMQ
 
