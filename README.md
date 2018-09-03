@@ -12,8 +12,9 @@ sentinel学习以及方便接入
 ```
 
 2. resource目录下增加sentinel.properties配置文件
-jdbc作为数据源的配置(推荐) 
 
+jdbc作为数据源的配置(推荐) 
+<code>
 \# 是否启用,默认false
 sentinel.enable=true
 
@@ -29,8 +30,10 @@ sentinel.dataSource.jdbc.password=root
 sentinel.dataSource.jdbc.appName=sentinel-support-demo
 \# 定时刷新规则的时间间隔(秒),默认30秒
 sentinel.dataSource.jdbc.ruleRefreshSec=30
+</code>
 
 zookeeper作为数据源的配置
+<code>
 \# 是否启用,默认false
 sentinel.enable=true
 
@@ -42,5 +45,6 @@ sentinel.dataSource.type=jdbc
 sentinel.dataSource.zookeeper.url=zk.test.winxuan.io:8900
 \# sentinel规则路径,不同规则后面路径规定,流控规则:/flow,熔断降级规则:/degrade,系统负载保护规则:/system
 sentinel.dubbo.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.dubbo.sentinel.rule
+</code>
 
-3. 根据jdbc或zookeeper类型在数据库或zookpeer的配置中心界面上添加修改规则即可
+3. 根据jdbc或zookeeper类型，在数据库或zookpeer的配置中心界面上添加、修改规则
