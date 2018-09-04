@@ -1,6 +1,6 @@
 package com.winxuan.sentinel.support.datasource.jdbc;
 
-import com.alibaba.csp.sentinel.datasource.ConfigParser;
+import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.datasource.jdbc.JdbcDataSource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -64,19 +64,19 @@ public class WinxuanJdbcDataSource<T> extends JdbcDataSource<T> {
     /**Spring JdbcTemplate for execute sql query from db*/
     private JdbcTemplate jdbcTemplate;
 
-    public WinxuanJdbcDataSource(JdbcTemplate jdbcTemplate, String appName, ConfigParser<List<Map<String, Object>>, T> configParser) {
-        this(jdbcTemplate, appName, configParser, DEFAULT_RULE_REFRESH_SEC);
+    public WinxuanJdbcDataSource(JdbcTemplate jdbcTemplate, String appName, Converter<List<Map<String, Object>>, T> converter) {
+        this(jdbcTemplate, appName, converter, DEFAULT_RULE_REFRESH_SEC);
     }
 
-    public WinxuanJdbcDataSource(JdbcTemplate jdbcTemplate, String appName, ConfigParser<List<Map<String, Object>>, T> configParser, Long ruleRefreshSec) {
-        super(jdbcTemplate.getDataSource(), configParser, ruleRefreshSec);
+    public WinxuanJdbcDataSource(JdbcTemplate jdbcTemplate, String appName, Converter<List<Map<String, Object>>, T> converter, Long ruleRefreshSec) {
+        super(jdbcTemplate.getDataSource(), converter, ruleRefreshSec);
 
         this.jdbcTemplate = jdbcTemplate;
         this.appName = appName;
 
         initAppId();
 
-        this.ruleType = getRuleTypeByConfigParser(configParser);
+        this.ruleType = getRuleTypeByConverter(converter);
 
         Assert.isTrue(RULE_TYPE_TABLE_NAME_MAP.containsKey(ruleType), "ruleType invalid, must be flow|degrade|system");
         String ruleTableName = RULE_TYPE_TABLE_NAME_MAP.get(ruleType);
@@ -109,22 +109,22 @@ public class WinxuanJdbcDataSource<T> extends JdbcDataSource<T> {
 
     /**
      * get ruleType by configParse's class
-     * @param configParser
+     * @param converter
      * @return
      */
-    private String getRuleTypeByConfigParser(ConfigParser<List<Map<String, Object>>, T> configParser) {
-        if (configParser instanceof JdbcFlowRuleParser) {
+    private String getRuleTypeByConverter(Converter<List<Map<String, Object>>, T> converter) {
+        if (converter instanceof JdbcDataSource.JdbcFlowRuleConverter) {
             return RULE_TYPE_FLOW;
         }
 
-        if (configParser instanceof JdbcDegradeRuleParser) {
+        if (converter instanceof JdbcDataSource.JdbcDegradeRuleConverter) {
             return RULE_TYPE_DEGRADE;
         }
 
-        if (configParser instanceof JdbcSystemRuleParser) {
+        if (converter instanceof JdbcDataSource.JdbcSystemRuleConverter) {
             return RULE_TYPE_SYSTEM;
         }
 
-        throw new IllegalArgumentException("configParser invalid");
+        throw new IllegalArgumentException("converter invalid");
     }
 }

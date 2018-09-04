@@ -171,13 +171,13 @@ public class SentinelProperties {
         Assert.notNull(password, "sentinel.dataSource.jdbc.password is null, please check sentinel.properties");
         Assert.notNull(appName, "sentinel.dataSource.jdbc.appName is null, please check sentinel.properties");
 
-        DataSource<List<Map<String, Object>>, List<FlowRule>> flowRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcFlowRuleParser(), ruleRefreshSec);
+        DataSource<List<Map<String, Object>>, List<FlowRule>> flowRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcFlowRuleConverter(), ruleRefreshSec);
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
 
-        DataSource<List<Map<String, Object>>, List<DegradeRule>> degradeRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcDegradeRuleParser(), ruleRefreshSec);
+        DataSource<List<Map<String, Object>>, List<DegradeRule>> degradeRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcDegradeRuleConverter(), ruleRefreshSec);
         DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
 
-        DataSource<List<Map<String, Object>>, List<SystemRule>> dataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcSystemRuleParser(), ruleRefreshSec);
+        DataSource<List<Map<String, Object>>, List<SystemRule>> dataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcSystemRuleConverter(), ruleRefreshSec);
         SystemRuleManager.register2Property(dataSource.getProperty());
     }
 
