@@ -1,6 +1,6 @@
 package com.winxuan.sentinel.support.config;
 
-import com.alibaba.csp.sentinel.datasource.DataSource;
+import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
 import com.alibaba.csp.sentinel.datasource.jdbc.JdbcDataSource;
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
 import com.alibaba.csp.sentinel.init.InitExecutor;
@@ -171,13 +171,13 @@ public class SentinelProperties {
         Assert.notNull(password, "sentinel.dataSource.jdbc.password is null, please check sentinel.properties");
         Assert.notNull(appName, "sentinel.dataSource.jdbc.appName is null, please check sentinel.properties");
 
-        DataSource<List<Map<String, Object>>, List<FlowRule>> flowRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcFlowRuleConverter(), ruleRefreshSec);
+        ReadableDataSource<List<Map<String, Object>>, List<FlowRule>> flowRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcFlowRuleConverter(), ruleRefreshSec);
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
 
-        DataSource<List<Map<String, Object>>, List<DegradeRule>> degradeRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcDegradeRuleConverter(), ruleRefreshSec);
+        ReadableDataSource<List<Map<String, Object>>, List<DegradeRule>> degradeRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcDegradeRuleConverter(), ruleRefreshSec);
         DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
 
-        DataSource<List<Map<String, Object>>, List<SystemRule>> dataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcSystemRuleConverter(), ruleRefreshSec);
+        ReadableDataSource<List<Map<String, Object>>, List<SystemRule>> dataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcSystemRuleConverter(), ruleRefreshSec);
         SystemRuleManager.register2Property(dataSource.getProperty());
     }
 
@@ -202,15 +202,15 @@ public class SentinelProperties {
             String systemPath = getPath(zkPath, SYSTEM_PATH);
             log(name +" systemPath=" + systemPath);
 
-            DataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, flowPath
+            ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, flowPath
                     , source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
             FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
 
-            DataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, degradePath
+            ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, degradePath
                     , source -> JSON.parseObject(source, new TypeReference<List<DegradeRule>>() {}));
             DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
 
-            DataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, systemPath
+            ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, systemPath
                     , source -> JSON.parseObject(source, new TypeReference<List<SystemRule>>() {}));
             SystemRuleManager.register2Property(systemRuleDataSource.getProperty());
         }

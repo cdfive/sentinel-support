@@ -1,6 +1,6 @@
 package com.winxuan.sentinel.support.activemq.plugin;
 
-import com.alibaba.csp.sentinel.datasource.DataSource;
+import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
 import com.alibaba.csp.sentinel.init.InitExecutor;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
@@ -59,19 +59,19 @@ public class SentinelBrokerPlugin implements BrokerPlugin {
         log("InitExecutor.doInit end");
 
         log("FlowRule zookeeper register start");
-        DataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zkServer, mqFlowRulePath,
+        ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zkServer, mqFlowRulePath,
                 source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
         log("FlowRule zookeeper register end");
 
         log("DegradeRule zookeeper register start");
-        DataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zkServer, mqDegradeRulePath,
+        ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zkServer, mqDegradeRulePath,
                 source -> JSON.parseObject(source, new TypeReference<List<DegradeRule>>() {}));
         DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
         log("DegradeRule zookeeper register end");
 
         log("SystemRule zookeeper register start");
-        DataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zkServer, mqSystemRulePath,
+        ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zkServer, mqSystemRulePath,
                 source -> JSON.parseObject(source, new TypeReference<List<SystemRule>>() {}));
         SystemRuleManager.register2Property(systemRuleDataSource.getProperty());
         log("SystemRule zookeeper register end");
