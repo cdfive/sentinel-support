@@ -1,14 +1,14 @@
 # sentinel-support
 
-sentinel学习以及方便接入
+sentinel支持工程
 
 ## sentinel-support目标
 
 1. 统一管理sentinel的依赖版本，方便接入和扩展
 
-2. 提供sentinel.properties配置文件支持：包括启用、指定数据源
+2. 提供sentinel.properties配置文件支持：包括启用、指定数据源，增加WinxuanJdbcDataSource支持
 
-3. activemq支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
+3. ActiveMQ支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
 
 
 ## 业务工程接入步骤
@@ -66,7 +66,23 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 > 目前zookeeper上配置规则，不同类型规则path固定：流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system</br>
 一个应用的某类型规则列表，是一个大的json array // 考虑如何改进？
 
-### 3.根据业务场景，在数据库或zookpeer的配置中心界面上添加、修改规则即可
+### 3.根据业务场景，在数据库或zookpeer的配置中心界面上添加、修改规则
+
+```sql
+-- add a app named demo_app
+INSERT INTO sentinel_app(id,NAME,chn_name,description,create_time,enabled,deleted) VALUES(1,'demo_app','示例项目','示例项目的描述',NOW(),1,0);
+
+-- add one flow rule of demo_app
+INSERT INTO sentinel_flow_rule(app_id,resource,resource_type,description,limit_app,grade,_count,strategy,control_behavior,create_time,enabled,deleted) 
+VALUES(1,'com.demo.FooService:hello(java.lang.String)','dubbo','hello方法','default',1,5,0,0,NOW(),1,0);
+```
+
+### 4.修改启动脚本，增加JVM参数
+
+-Dcsp.sentinel.dashboard.server=consoleIp:port // 控制台ip和端口</br>
+-Dcsp.sentinel.api.port=8719 // 客户端api监控端口,默认8719，单机多个应用需要配置不同的端口</br> 
+-Dproject.name=xxx // 应用名称
+
 
 ## ActiveMQ的SentinelBrokerFilter插件
 
