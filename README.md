@@ -19,7 +19,7 @@ sentinel支持工程
 <dependency>
     <groupId>com.winxuan</groupId>
     <artifactId>sentinel-support</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -82,7 +82,7 @@ VALUES(1,'com.demo.FooService:hello(java.lang.String)','dubbo','hello方法','de
 -Dcsp.sentinel.dashboard.server=consoleIp:port // 控制台ip和端口</br>
 -Dcsp.sentinel.api.port=8719 // 客户端api监控端口,默认8719，单机多个应用需要配置不同的端口</br> 
 -Dproject.name=xxx // 应用名称
-
+-Djava.net.preferIPv4Stack=true // 解决加载ipv6模块的问题
 
 ## ActiveMQ的SentinelBrokerFilter插件
 
