@@ -8,7 +8,7 @@ sentinel学习以及方便接入
 
 2. 提供sentinel.properties配置文件支持：包括启用、指定数据源
 
-3. activemq支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
+3. ActiveMQ支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
 
 
 ## 业务工程接入步骤
@@ -19,7 +19,7 @@ sentinel学习以及方便接入
 <dependency>
     <groupId>com.winxuan</groupId>
     <artifactId>sentinel-support</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -66,7 +66,14 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 > 目前zookeeper上配置规则，不同类型规则path固定：流控规则/flow,熔断降级规则/degrade,系统负载保护规则/system</br>
 一个应用的某类型规则列表，是一个大的json array // 考虑如何改进？
 
-### 3.根据业务场景，在数据库或zookpeer的配置中心界面上添加、修改规则即可
+### 3.根据业务场景，在数据库或zookpeer的配置中心界面上添加、修改规则
+
+### 4.修改启动脚本，增加JVM参数
+
+-Dcsp.sentinel.dashboard.server=consoleIp:port // 控制台ip和端口</br>
+-Dcsp.sentinel.api.port=8719 // 客户端api监控端口,默认8719，单机多个应用需要配置不同的端口</br> 
+-Dproject.name=xxx // 应用名称
+-Djava.net.preferIPv4Stack=true // 解决加载ipv6模块的问题
 
 ## ActiveMQ的SentinelBrokerFilter插件
 
