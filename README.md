@@ -6,9 +6,11 @@ sentinel学习以及方便接入
 
 1. 统一管理sentinel的依赖版本，方便接入和扩展
 
-2. 提供sentinel.properties配置文件支持：包括启用、指定数据源
+2. 提供sentinel.properties配置文件支持：包括是否启用sentinel、指定数据源
 
-3. ActiveMQ支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
+3. 提供了一个定制的JdbcDataSource实现
+
+4. ActiveMQ支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
 
 
 ## 业务工程接入步骤
@@ -39,10 +41,6 @@ sentinel.dataSource.jdbc.driverClassName=com.mysql.jdbc.Driver
 sentinel.dataSource.jdbc.url=jdbc:mysql://localhost:3306/sentinel_db
 sentinel.dataSource.jdbc.username=root
 sentinel.dataSource.jdbc.password=root
-# 应用名称,对应sentinel_app表中的列app_name
-sentinel.dataSource.jdbc.appName=sentinel-support-demo
-# 定时刷新规则的时间间隔(秒),默认30秒
-sentinel.dataSource.jdbc.ruleRefreshSec=30
 ```
 
 * zookeeper作为数据源:
@@ -109,6 +107,136 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 
 > 测试使用ActiveMQ的版本：5.15.5
 
+
+sentinel_db database ddl:
+```sql
+-- drop table
+DROP TABLE IF EXISTS sentinel_app;
+DROP TABLE IF EXISTS sentinel_flow_rule;
+DROP TABLE IF EXISTS sentinel_degrade_rule;
+DROP TABLE IF EXISTS sentinel_system_rule;
+
+-- create table
+-- 应用表
+CREATE TABLE `sentinel_app` (
+  `id` INT NOT NULL COMMENT 'id，主键',
+  `_name` VARCHAR(100) NOT NULL COMMENT '应用名称',
+  `chn_name` VARCHAR(100) COMMENT '应用中文名称',
+  `description` VARCHAR(500) COMMENT '应用描述',
+  `host_name` VARCHAR(100) COMMENT '应用所在机器名称',
+  `ip` VARCHAR(50) NOT NULL COMMENT '应用ip地址',
+  `_port` INT NOT NULL COMMENT '端口号,指sentinel的端口号,csp.sentinel.api.port,默认8719', 
+  `create_user_id` INT COMMENT '创建人id',
+  `update_user_id` INT COMMENT '修改人id',
+  `create_time` DATETIME COMMENT '创建时间',
+  `update_time` DATETIME COMMENT '修改时间',
+  `enabled` TINYINT NOT NULL COMMENT '是否启用 0-禁用 1-启用',
+  `deleted` TINYINT COMMENT '是否删除 0-正常 1-删除',
+  INDEX name_idx(`_name`) USING BTREE,
+  INDEX ip_idx(`ip`) USING BTREE,
+  INDEX port_idx(`_port`) USING BTREE,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+-- 流控规则表
+CREATE TABLE `sentinel_flow_rule` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT 'id，主键',
+  `app_id` INT NOT NULL COMMENT '应用id',
+  `resource` VARCHAR(200) NOT NULL COMMENT '规则的资源描述',
+  `resource_type` VARCHAR(20) COMMENT '资源类型 activemq,dubbo,rest,...',
+  `resource_description` VARCHAR(500) COMMENT '资源描述',
+  `limit_app` VARCHAR(100) NOT NULL COMMENT '被限制的应用,授权时候为逗号分隔的应用集合，限流时为单个应用',
+  `grade` TINYINT NOT NULL COMMENT '0-THREAD 1-QPS',
+  `_count` DOUBLE NOT NULL COMMENT '数量',
+  `strategy` INT NOT NULL COMMENT '0-直接 1-关联 2-链路',
+  `ref_resource` VARCHAR(200) COMMENT '关联的资源',
+  `control_behavior` TINYINT NOT NULL COMMENT '0-直接拒绝 1-冷启动 2-匀速器',
+  `warm_up_period_sec` INT COMMENT '冷启动时间(秒)',
+  `max_queueing_time_ms` INT COMMENT '匀速器最大排队时间(毫秒)',
+  `create_user_id` INT COMMENT '创建人id',
+  `update_user_id` INT COMMENT '修改人id',
+  `create_time` DATETIME COMMENT '创建时间',
+  `update_time` DATETIME COMMENT '修改时间',
+  `change_status` TINYINT COMMENT '保留字段,未来做增量更新使用 0-未改变 1-新增 2-修改 3-删除',
+  `enabled` TINYINT NOT NULL COMMENT '是否启用 0-禁用 1-启用',
+  `deleted` TINYINT NOT NULL COMMENT '是否删除 0-正常 1-删除',
+  INDEX app_id_idx(`app_id`) USING BTREE,
+  INDEX resource_idx(`resource`) USING BTREE,
+  INDEX enabled_idx(`enabled`) USING BTREE,
+  INDEX deleted_idx(`deleted`) USING BTREE,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+
+-- 熔断降级规则表
+CREATE TABLE `sentinel_degrade_rule` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT 'id，主键',
+  `app_id` INT NOT NULL COMMENT '应用id',
+  `resource` VARCHAR(200) NOT NULL COMMENT '规则的资源描述',
+  `resource_type` VARCHAR(20) COMMENT '资源类型 activemq,dubbo,rest,...',
+  `resource_description` VARCHAR(500) COMMENT '资源描述',
+  `limit_app` VARCHAR(100) NOT NULL COMMENT '被限制的应用,授权时候为逗号分隔的应用集合，限流时为单个应用',
+  `grade` TINYINT NOT NULL COMMENT '0-根据响应时间 1-根据异常比例',		
+  `_count` DOUBLE NOT NULL COMMENT '数量',
+  `time_window` INT COMMENT '降级后恢复时间',
+  `create_user_id` INT COMMENT '创建人id',
+  `update_user_id` INT COMMENT '修改人id',
+  `create_time` DATETIME COMMENT '创建时间',
+  `update_time` DATETIME COMMENT '修改时间',
+  `change_status` TINYINT COMMENT '保留字段,未来做增量更新使用 0-未改变 1-新增 2-修改 3-删除',
+  `enabled` TINYINT NOT NULL COMMENT '是否启用 0-禁用 1-启用',
+  `deleted` TINYINT NOT NULL COMMENT '是否删除 0-正常 1-删除',
+  INDEX app_id_idx(`app_id`) USING BTREE,
+  INDEX resource_idx(`resource`) USING BTREE,
+  INDEX enabled_idx(`enabled`) USING BTREE,
+  INDEX deleted_idx(`deleted`) USING BTREE,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+
+-- 系统负载保护规则表
+CREATE TABLE `sentinel_system_rule` (
+  `id` INT NOT NULL AUTO_INCREMENT COMMENT 'id，主键',
+  `app_id` INT NOT NULL COMMENT '应用id',
+  `highest_system_load` DOUBLE COMMENT '最大系统负载',
+  `qps` DOUBLE COMMENT 'QPS',
+  `avg_rt` LONG COMMENT '平均响应时间',
+  `max_thread` LONG COMMENT '最大线程数',
+  `create_user_id` INT COMMENT '创建人id',
+  `update_user_id` INT COMMENT '修改人id',
+  `create_time` DATETIME COMMENT '创建时间',
+  `update_time` DATETIME COMMENT '修改时间',
+  `change_status` TINYINT COMMENT '保留字段,未来做增量更新使用 0-未改变 1-新增 2-修改 3-删除',
+  `enabled` TINYINT NOT NULL COMMENT '是否启用 0-禁用 1-启用',
+  `deleted` TINYINT NOT NULL COMMENT '是否删除 0-正常 1-删除',
+  INDEX app_id_idx(`app_id`) USING BTREE,
+  INDEX enabled_idx(`enabled`) USING BTREE,
+  INDEX deleted_idx(`deleted`) USING BTREE,
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB DEFAULT CHARSET=utf8;
+```
+
+sentinel_db database init data:
+```sql
+-- init data start
+INSERT INTO sentinel_app(id,_name,ip,_port,create_time,update_time,enabled,deleted) VALUES(1,'sentinel-support-dubbo-provider-demo','192.168.1.101',8719,NOW(),NOW(),1,0);
+INSERT INTO sentinel_app(id,_name,ip,_port,create_time,update_time,enabled,deleted) VALUES(2,'sentinel-support-dubbo-provider-demo','192.168.1.101',8720,NOW(),NOW(),1,0);
+
+INSERT INTO sentinel_flow_rule(app_id,resource,limit_app,grade,_count,strategy,ref_resource,control_behavior,warm_up_period_sec,max_queueing_time_ms,create_time,update_time,enabled,deleted) 
+VALUES(1,'com.demo.FooService:hello(java.lang.String)','default',1,5,0,NULL,0,NULL,NULL,NOW(),NOW(),1,0);
+INSERT INTO sentinel_flow_rule(app_id,resource,limit_app,grade,_count,strategy,ref_resource,control_behavior,warm_up_period_sec,max_queueing_time_ms,create_time,update_time,enabled,deleted) 
+VALUES(2,'com.demo.FooService:hello(java.lang.String)','default',1,10,0,NULL,0,NULL,NULL,NOW(),NOW(),1,0);
+
+INSERT INTO sentinel_degrade_rule(app_id,resource,limit_app,grade,_count,time_window,create_time,update_time,enabled,deleted) 
+VALUES(1,'com.demo.FooService:hello(java.lang.String)','default',0,5,10,NOW(),NOW(),1,0);
+INSERT INTO sentinel_degrade_rule(app_id,resource,limit_app,grade,_count,time_window,create_time,update_time,enabled,deleted) 
+VALUES(2,'com.demo.FooService:hello(java.lang.String)','default',1,10,5,NOW(),NOW(),1,0);
+
+INSERT INTO sentinel_system_rule(app_id,highest_system_load,qps,avg_rt,max_thread,create_time,update_time,enabled,deleted) 
+VALUES(1,3,10,20,10,NOW(),NOW(),1,0);
+INSERT INTO sentinel_system_rule(app_id,highest_system_load,qps,avg_rt,max_thread,create_time,update_time,enabled,deleted) 
+VALUES(2,2,20,40,20,NOW(),NOW(),1,0);
+-- init data end
+```
 
 ## 参考示例
 sentinel-support-demo的[README.md](https://github.com/cdfive/sentinel-support-demo)
