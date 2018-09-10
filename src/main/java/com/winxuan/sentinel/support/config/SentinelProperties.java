@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -53,9 +54,11 @@ public class SentinelProperties {
     private static final String DEGRADE_PATH = "degrade";
     private static final String SYSTEM_PATH = "system";
 
+    /**sentinel db DataSource*/
+    private DruidDataSource sentinelDbDataSource;
 
-    /**是否启用sentinel支持，默认true*/
-    @Value("${sentinel.enable:true}")
+    /**是否启用sentinel支持，默认false*/
+    @Value("${sentinel.enable:false}")
     private boolean enable;
 
     /**数据源类型，jdbc或zookeeper，默认jdbc*/
@@ -91,10 +94,6 @@ public class SentinelProperties {
     public void init() {
         log(this.toString());
 
-        log("InitExecutor.doInit() start");
-        InitExecutor.doInit();
-        log("InitExecutor.doInit() end");
-
         if (!enable) {
             logDebug("sentinel is not enable");
             return;
@@ -102,13 +101,24 @@ public class SentinelProperties {
 
         log("sentinel is enable");
 
+        log("InitExecutor.doInit() start");
+        InitExecutor.doInit();
+        log("InitExecutor.doInit() end");
+
         String appName = AppNameUtil.getAppName();
         log("appName=" + appName);
+
         String hostName = HostNameUtil.getHostName();
         log("hostName=" + hostName);
+
         String ip = HostNameUtil.getIp();
         log("ip=" + ip);
-        Integer port = Integer.parseInt(TransportConfig.getPort());
+
+        String transportPort = TransportConfig.getPort();
+        if (StringUtils.isEmpty(transportPort)) {
+            throw new IllegalArgumentException("can't get transport port, check start JVM argment -Dcsp.sentinel.api.port=xxx");
+        }
+        Integer port = Integer.parseInt(transportPort);
         log("port=" + port);
 
         if (dataSourceType == null) {
@@ -135,17 +145,6 @@ public class SentinelProperties {
     }
 
     @Bean
-    @Conditional(SentinelJdbcDataSourceCondition.class)
-    public DruidDataSource sentinelDataSource() {
-        DruidDataSource datasource = new DruidDataSource();
-        datasource.setUrl(url);
-        datasource.setUsername(username);
-        datasource.setPassword(password);
-        datasource.setDriverClassName(driverClassName);
-        return datasource;
-    }
-
-    @Bean
     @Conditional(SentinelEnableCondition.class)
     public MessageListenerAspect messageListenerAspect() {
         return new MessageListenerAspect();
@@ -159,30 +158,27 @@ public class SentinelProperties {
         }
     }
 
-    private static class SentinelJdbcDataSourceCondition implements Condition {
-        @Override
-        public boolean matches(ConditionContext conditionContext, AnnotatedTypeMetadata annotatedTypeMetadata) {
-            String enable = conditionContext.getEnvironment().getProperty("sentinel.enable");
-            String dataSourceType = conditionContext.getEnvironment().getProperty("sentinel.dataSource.type");
-            return enable != null && "true".equals(enable) && dataSourceType != null && DATA_SOURCE_TYPE_JDBC.equals(dataSourceType);
-        }
-    }
-
     private void initJdbcDataSource(String appName, String ip, Integer port) {
         Assert.notNull(driverClassName, "sentinel.dataSource.jdbc.driverClassName is null, please check sentinel.properties");
         Assert.notNull(url, "sentinel.dataSource.jdbc.url is null, please check sentinel.properties");
         Assert.notNull(username, "sentinel.dataSource.jdbc.username is null, please check sentinel.properties");
         Assert.notNull(password, "sentinel.dataSource.jdbc.password is null, please check sentinel.properties");
 
-        WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDataSource(), appName, ip, port);
+        sentinelDbDataSource = new DruidDataSource();
+        sentinelDbDataSource.setUrl(url);
+        sentinelDbDataSource.setUsername(username);
+        sentinelDbDataSource.setPassword(password);
+        sentinelDbDataSource.setDriverClassName(driverClassName);
+
+        WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDbDataSource, appName, ip, port);
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
         WritableDataSourceRegistry.registerFlowDataSource(flowRuleDataSource);
 
-        WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDataSource(), appName, ip, port);
+        WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDbDataSource, appName, ip, port);
         DegradeRuleManager.register2Property(degradeJdbcDataSource.getProperty());
         WritableDataSourceRegistry.registerDegradeDataSource(degradeJdbcDataSource);
 
-        WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDataSource(), appName, ip, port);
+        WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDbDataSource, appName, ip, port);
         SystemRuleManager.register2Property(systemJdbcDataSource.getProperty());
         WritableDataSourceRegistry.registerSystemDataSource(systemJdbcDataSource);
     }

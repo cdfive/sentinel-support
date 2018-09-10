@@ -30,7 +30,7 @@ sentinel学习以及方便接入
 * jdbc作为数据源(**推荐**)：
 
 ```
-# 是否启用,默认true
+# 是否启用,默认false
 sentinel.enable=true
 
 # dataSource类型,zookeeper或jdbc,默认jdbc
