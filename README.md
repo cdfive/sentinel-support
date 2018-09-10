@@ -8,7 +8,7 @@ sentinel学习以及方便接入
 
 2. 提供sentinel.properties配置文件支持：包括是否启用sentinel、指定数据源
 
-3. 提供了一个定制的JdbcDataSource实现
+3. 提供一个定制的JdbcDataSource实现
 
 4. ActiveMQ支持：通过BrokerFilter(send)、MessageListener中onMessage的aspect(receive)，加入sentinel的埋点
 
@@ -237,5 +237,3 @@ INSERT INTO sentinel_system_rule(app_id,highest_system_load,qps,avg_rt,max_threa
 VALUES(2,2,20,40,20,NOW(),NOW(),1,0);
 -- init data end
 ```
-
-### test
