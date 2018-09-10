@@ -237,3 +237,5 @@ INSERT INTO sentinel_system_rule(app_id,highest_system_load,qps,avg_rt,max_threa
 VALUES(2,2,20,40,20,NOW(),NOW(),1,0);
 -- init data end
 ```
+
+### test
