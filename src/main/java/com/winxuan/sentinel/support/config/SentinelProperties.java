@@ -1,7 +1,6 @@
 package com.winxuan.sentinel.support.config;
 
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
-
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
 import com.alibaba.csp.sentinel.init.InitExecutor;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
@@ -10,27 +9,30 @@ import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRuleManager;
 import com.alibaba.csp.sentinel.slots.system.SystemRule;
 import com.alibaba.csp.sentinel.slots.system.SystemRuleManager;
+import com.alibaba.csp.sentinel.transport.config.TransportConfig;
+import com.alibaba.csp.sentinel.transport.util.WritableDataSourceRegistry;
+import com.alibaba.csp.sentinel.util.AppNameUtil;
+import com.alibaba.csp.sentinel.util.HostNameUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.winxuan.sentinel.support.SentinelSupportConstant;
 import com.winxuan.sentinel.support.activemq.aspect.MessageListenerAspect;
-import com.winxuan.sentinel.support.datasource.jdbc.JdbcDataSource;
-import com.winxuan.sentinel.support.datasource.jdbc.WinxuanJdbcDataSource;
+import com.winxuan.sentinel.support.datasource.jdbc.WxDegradeJdbcDataSource;
+import com.winxuan.sentinel.support.datasource.jdbc.WxFlowJdbcDataSource;
+import com.winxuan.sentinel.support.datasource.jdbc.WxSystemJdbcDataSource;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Map;
 
 /**
- * 提供sentinel.properties配置文件支持：包括启用、指定数据源
+ * 提供sentinel.properties配置文件支持：包括启用、指定数据源、ActiveMQ的MessageListenerAspect
  * 暂时仅支持jdbc、zookeeper数据源
  *
  * @author cdfive
@@ -51,6 +53,7 @@ public class SentinelProperties {
     private static final String DEGRADE_PATH = "degrade";
     private static final String SYSTEM_PATH = "system";
 
+
     /**是否启用sentinel支持，默认true*/
     @Value("${sentinel.enable:true}")
     private boolean enable;
@@ -59,7 +62,8 @@ public class SentinelProperties {
     @Value("${sentinel.dataSource.type:jdbc}")
     private String dataSourceType;
 
-    /******************jdbc datasource配置******************/
+
+    /**============jdbc datasource配置============*/
     @Value("${sentinel.dataSource.jdbc.driverClassName:#{null}}")
     private String driverClassName;
 
@@ -72,13 +76,8 @@ public class SentinelProperties {
     @Value("${sentinel.dataSource.jdbc.password:#{null}}")
     private String password;
 
-    @Value("${sentinel.dataSource.jdbc.appName:#{null}}")
-    private String appName;// 应用名称，对应sentinel_app表中的列app_name
 
-    @Value("${sentinel.dataSource.jdbc.ruleRefreshSec:#{null}}")
-    private Long ruleRefreshSec;// 定时刷新规则的时间间隔(秒),默认30秒
-
-    /******************zookeeper datasource配置******************/
+    /**============zookeeper datasource配置============*/
     @Value("${sentinel.dataSource.zookeeper.url:localhost:2181}")
     private String zookeeperUrl;// zookeeper地址
 
@@ -97,10 +96,20 @@ public class SentinelProperties {
         log("InitExecutor.doInit() end");
 
         if (!enable) {
+            logDebug("sentinel is not enable");
             return;
         }
 
         log("sentinel is enable");
+
+        String appName = AppNameUtil.getAppName();
+        log("appName=" + appName);
+        String hostName = HostNameUtil.getHostName();
+        log("hostName=" + hostName);
+        String ip = HostNameUtil.getIp();
+        log("ip=" + ip);
+        Integer port = Integer.parseInt(TransportConfig.getPort());
+        log("port=" + port);
 
         if (dataSourceType == null) {
             logWarn("dataSourceType is null");
@@ -112,15 +121,15 @@ public class SentinelProperties {
             return;
         }
 
-        if (DATA_SOURCE_TYPE_ZOOKEEPER.equals(dataSourceType)) {
-            log("initZookeeperDataSource");
-            initZookeeperDataSource();
+        if (DATA_SOURCE_TYPE_JDBC.equals(dataSourceType)) {
+            log("initJdbcDataSource");
+            initJdbcDataSource(appName, ip, port);
             return;
         }
 
-        if (DATA_SOURCE_TYPE_JDBC.equals(dataSourceType)) {
-            log("initJdbcDataSource");
-            initJdbcDataSource();
+        if (DATA_SOURCE_TYPE_ZOOKEEPER.equals(dataSourceType)) {
+            log("initZookeeperDataSource");
+            initZookeeperDataSource();
             return;
         }
     }
@@ -134,12 +143,6 @@ public class SentinelProperties {
         datasource.setPassword(password);
         datasource.setDriverClassName(driverClassName);
         return datasource;
-    }
-
-    @Bean
-    @Conditional(SentinelJdbcDataSourceCondition.class)
-    public JdbcTemplate sentinelJdbcTemplate() {
-        return new JdbcTemplate(sentinelDataSource());
     }
 
     @Bean
@@ -165,21 +168,23 @@ public class SentinelProperties {
         }
     }
 
-    private void initJdbcDataSource() {
+    private void initJdbcDataSource(String appName, String ip, Integer port) {
         Assert.notNull(driverClassName, "sentinel.dataSource.jdbc.driverClassName is null, please check sentinel.properties");
         Assert.notNull(url, "sentinel.dataSource.jdbc.url is null, please check sentinel.properties");
         Assert.notNull(username, "sentinel.dataSource.jdbc.username is null, please check sentinel.properties");
         Assert.notNull(password, "sentinel.dataSource.jdbc.password is null, please check sentinel.properties");
-        Assert.notNull(appName, "sentinel.dataSource.jdbc.appName is null, please check sentinel.properties");
 
-        ReadableDataSource<List<Map<String, Object>>, List<FlowRule>> flowRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcFlowRuleConverter(), ruleRefreshSec);
+        WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDataSource(), appName, ip, port);
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+        WritableDataSourceRegistry.registerFlowDataSource(flowRuleDataSource);
 
-        ReadableDataSource<List<Map<String, Object>>, List<DegradeRule>> degradeRuleDataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcDegradeRuleConverter(), ruleRefreshSec);
-        DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
+        WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDataSource(), appName, ip, port);
+        DegradeRuleManager.register2Property(degradeJdbcDataSource.getProperty());
+        WritableDataSourceRegistry.registerDegradeDataSource(degradeJdbcDataSource);
 
-        ReadableDataSource<List<Map<String, Object>>, List<SystemRule>> dataSource = new WinxuanJdbcDataSource(sentinelJdbcTemplate(), appName, new JdbcDataSource.JdbcSystemRuleConverter(), ruleRefreshSec);
-        SystemRuleManager.register2Property(dataSource.getProperty());
+        WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDataSource(), appName, ip, port);
+        SystemRuleManager.register2Property(systemJdbcDataSource.getProperty());
+        WritableDataSourceRegistry.registerSystemDataSource(systemJdbcDataSource);
     }
 
     private void initZookeeperDataSource() {
@@ -245,5 +250,9 @@ public class SentinelProperties {
 
     private static void logWarn(String info) {
         log.warn(SentinelSupportConstant.LOG_PRIFEX + info);
+    }
+
+    private static void logDebug(String info) {
+        log.debug(SentinelSupportConstant.LOG_PRIFEX + info);
     }
 }
