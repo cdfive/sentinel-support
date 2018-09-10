@@ -237,6 +237,3 @@ INSERT INTO sentinel_system_rule(app_id,highest_system_load,qps,avg_rt,max_threa
 VALUES(2,2,20,40,20,NOW(),NOW(),1,0);
 -- init data end
 ```
-
-## 参考示例
-sentinel-support-demo的[README.md](https://github.com/cdfive/sentinel-support-demo)
