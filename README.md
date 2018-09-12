@@ -6,7 +6,7 @@ sentinel学习以及方便接入
 
 1. 统一管理sentinel的依赖版本，方便接入和扩展
 
-2. 提供sentinel.properties配置文件支持：包括是否启用sentinel、指定数据源
+2. 提供sentinel.properties配置文件支持：包括是否启用sentinel、指定数据源类型
 
 3. 提供一个定制的JdbcDataSource实现
 
@@ -93,9 +93,9 @@ sentinel.activemq.path=/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.activemq.
 <plugins>
     <bean xmlns="http://www.springframework.org/schema/beans" id="sentinelBrokerPlugin" class="com.winxuan.sentinel.support.activemq.plugin.SentinelBrokerPlugin">
         <property name="zkServer" value="zk.test.winxuan.io:8900" />
-        <property name="mqFlowRulePath" value="/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.mq.sentinel.rule/flow" />
-        <property name="mqDegradeRulePath" value="/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.mq.sentinel.rule/degrade" />
-        <property name="mqSystemRulePath" value="/winxuan.config/toolkit/dev/1.0.1/xiejihan.test.mq.sentinel.rule/system" />
+        <property name="mqFlowRulePath" value="/winxuan.config/toolkit/dev/1.0.1/test.mq.sentinel.rule/flow" />
+        <property name="mqDegradeRulePath" value="/winxuan.config/toolkit/dev/1.0.1/test.mq.sentinel.rule/degrade" />
+        <property name="mqSystemRulePath" value="/winxuan.config/toolkit/dev/1.0.1/test.mq.sentinel.rule/system" />
     </bean>
 </plugins>
 ```

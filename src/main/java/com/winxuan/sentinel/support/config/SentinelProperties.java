@@ -79,6 +79,33 @@ public class SentinelProperties {
     @Value("${sentinel.dataSource.jdbc.password:#{null}}")
     private String password;
 
+    /**DruidDataSource config*/
+    @Value("${sentinel.dataSource.jdbc.initial-size:#{null}}")
+    private Integer initialSize;
+    @Value("${sentinel.dataSource.jdbc.maxActive:#{null}}")
+    private Integer maxActive;
+    @Value("${sentinel.dataSource.jdbc.maxIdle:#{null}}")
+    private Integer maxIdle;
+    @Value("${sentinel.dataSource.jdbc.minIdle:#{null}}")
+    private Integer minIdle;
+    @Value("${sentinel.dataSource.jdbc.log-abandoned:#{null}}")
+    private Boolean logAbandoned;
+    @Value("${sentinel.dataSource.jdbc.remove-abandoned:#{null}}")
+    private Boolean removeAbandoned;
+    @Value("${sentinel.dataSource.jdbc.removeAbandonedTimeout:#{null}}")
+    private Integer removeAbandonedTimeout;
+    @Value("${sentinel.dataSource.jdbc.max-wait:#{null}}")
+    private Integer maxWait;
+    @Value("${sentinel.dataSource.jdbc.min-evictable-idle-time-millis:#{null}}")
+    private Long minEvictableIdleTimeMillis;
+    @Value("${sentinel.dataSource.jdbc.time-between-eviction-runs-millis:#{null}}")
+    private Long timeBetweenEvictionRunsMillis;
+    @Value("${sentinel.dataSource.jdbc.test-on-borrow:#{null}}")
+    private Boolean testOnBorrow;
+    @Value("${sentinel.dataSource.jdbc.test-while-idle:#{null}}")
+    private Boolean testWhileIdle;
+    @Value("${sentinel.dataSource.jdbc.test-on-return:#{null}}")
+    private Boolean testOnReturn;
 
     /**============zookeeper datasource配置============*/
     @Value("${sentinel.dataSource.zookeeper.url:localhost:2181}")
@@ -169,6 +196,20 @@ public class SentinelProperties {
         sentinelDbDataSource.setUsername(username);
         sentinelDbDataSource.setPassword(password);
         sentinelDbDataSource.setDriverClassName(driverClassName);
+
+        /**DruidDataSource config*/
+        if (initialSize != null) { sentinelDbDataSource.setInitialSize(initialSize); }
+        if (maxActive != null) { sentinelDbDataSource.setMaxActive(maxActive); }
+        if (minIdle != null) { sentinelDbDataSource.setMinIdle(minIdle); }
+        if (logAbandoned != null) { sentinelDbDataSource.setLogAbandoned(logAbandoned); }
+        if (removeAbandoned != null) { sentinelDbDataSource.setRemoveAbandoned(removeAbandoned); }
+        if (removeAbandonedTimeout != null) { sentinelDbDataSource.setRemoveAbandonedTimeout(removeAbandonedTimeout); }
+        if (maxWait != null) { sentinelDbDataSource.setMaxWait(maxWait); }
+        if (minEvictableIdleTimeMillis != null) { sentinelDbDataSource.setMinEvictableIdleTimeMillis(minEvictableIdleTimeMillis); }
+        if (timeBetweenEvictionRunsMillis != null) { sentinelDbDataSource.setTimeBetweenEvictionRunsMillis(timeBetweenEvictionRunsMillis); }
+        if (testOnBorrow != null) { sentinelDbDataSource.setTestOnBorrow(testOnBorrow); }
+        if (testWhileIdle != null) { sentinelDbDataSource.setTestWhileIdle(testWhileIdle); }
+        if (testOnReturn != null) { sentinelDbDataSource.setTestOnReturn(testOnReturn); }
 
         WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDbDataSource, appName, ip, port);
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
