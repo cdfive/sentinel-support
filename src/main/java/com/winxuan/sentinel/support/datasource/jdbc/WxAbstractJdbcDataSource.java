@@ -42,28 +42,45 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     private static final String DELETE_RULE_SQL = "DELETE FROM %s WHERE app_id=?";
 
 
+    /**for getProperty() and update value, use DynamicSentinelProperty as implement*/
     private SentinelProperty<T> property;
-
+    /**a standard javax.sql.DataSource*/
     private DataSource dbDataSource;
-
+    /**app id, a application has a unique app id*/
     private Integer appId;
-
+    /**app name, the applitaion name*/
     private String appName;
-
+    /**the ip of server which the app deployed*/
     private String ip;
-
+    /**the port the app used*/
     private Integer port;
-
+    /**the rule table which store the rule's value, init value in subclass @see,initRuleTableName*/
     private String ruleTableName;
-
+    /**the interval in second which is used for refresh the rules, if null needn't refresh*/
     private Long refreshSec;
-
+    /**the refresh backgound thread service*/
     private ScheduledExecutorService refreshService;
 
+    /**
+     * constructor
+     * refreshSec is null, need't refresh
+     * @param dbDataSource a standard javax.sql.DataSource
+     * @param appName app id, a application has a unique app id
+     * @param ip the ip of server which the app deployed
+     * @param port the port the app used
+     */
     public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port)  {
         this(dbDataSource, appName, ip, port, null);
     }
 
+    /**
+     * constructor
+     * @param dbDataSource a standard javax.sql.DataSource
+     * @param appName app id, a application has a unique app id
+     * @param ip the ip of server which the app deployed
+     * @param port the port the app used
+     * @param refreshSec the interval in second which is used for refresh the rules, if null needn't refresh
+     */
     public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec) {
         checkNotNull(dbDataSource, "javax.sql.DataSource dbDataSource can't be null");
         checkNotEmpty(appName, "appName can't be null or empty");
@@ -93,7 +110,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     }
 
     /**
-     * query appId from db by appName,ip,port
+     * query app id from db by appName,ip,port
      */
     private void initAppId() {
         Object object = findObjectBySql(FIND_APP_ID_SQL, new Object[]{appName, ip, port});

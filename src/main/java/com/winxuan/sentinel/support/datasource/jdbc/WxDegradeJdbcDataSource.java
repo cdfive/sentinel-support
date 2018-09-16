@@ -15,11 +15,11 @@ import java.util.Map;
  */
 public class WxDegradeJdbcDataSource extends WxAbstractJdbcDataSource<List<DegradeRule>> {
 
+    private static final String DEGRADE_RULE_TABLE = "sentinel_degrade_rule";
+
     private static final String INSERT_DEGRADE_RULE_SQL = "INSERT INTO sentinel_degrade_rule"
             + " (app_id,resource,limit_app,grade,_count,time_window,create_time,update_time,enabled,deleted)"
             + " VALUES(?,?,?,?,?,?,NOW(),NOW(),1,0)";
-
-    private final String DEGRADE_RULE_TABLE = "sentinel_degrade_rule";
 
     public WxDegradeJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port) {
         super(dbDataSource, appName, ip, port);

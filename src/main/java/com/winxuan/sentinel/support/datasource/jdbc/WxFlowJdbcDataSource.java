@@ -14,11 +14,11 @@ import java.util.Map;
  */
 public class WxFlowJdbcDataSource extends WxAbstractJdbcDataSource<List<FlowRule>> {
 
+    private static final String FLOW_RULE_TABLE = "sentinel_flow_rule";
+
     private static final String INSERT_FLOW_RULE_SQL = "INSERT INTO sentinel_flow_rule"
             + " (app_id,resource,limit_app,grade,_count,strategy,ref_resource,control_behavior,warm_up_period_sec,max_queueing_time_ms,create_time,update_time,enabled,deleted)"
             + " VALUES(?,?,?,?,?,?,?,?,?,?,NOW(),NOW(),1,0)";
-
-    private final String FLOW_RULE_TABLE = "sentinel_flow_rule";
 
     public WxFlowJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port) {
         super(dbDataSource, appName, ip, port);

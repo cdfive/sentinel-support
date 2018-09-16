@@ -15,11 +15,11 @@ import java.util.Map;
  */
 public class WxSystemJdbcDataSource extends WxAbstractJdbcDataSource<List<SystemRule>> {
 
+    private static final String SYSTEM_RULE_TABLE = "sentinel_system_rule";
+
     private static final String INSERT_SYSTEM_RULE_SQL = "INSERT INTO sentinel_system_rule"
             + " (app_id,highest_system_load,qps,avg_rt,max_thread,create_time,update_time,enabled,deleted)"
             + " VALUES(?,?,?,?,?,NOW(),NOW(),1,0)";
-
-    private final String SYSTEM_RULE_TABLE = "sentinel_system_rule";
 
     public WxSystemJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port) {
         super(dbDataSource, appName, ip, port);
