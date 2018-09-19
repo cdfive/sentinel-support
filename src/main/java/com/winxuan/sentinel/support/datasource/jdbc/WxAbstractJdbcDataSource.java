@@ -48,7 +48,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     private DataSource dbDataSource;
     /**app id, a application has a unique app id*/
     private Integer appId;
-    /**app name, the applitaion name*/
+    /**app name, the application name*/
     private String appName;
     /**the ip of server which the app deployed*/
     private String ip;
@@ -65,7 +65,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      * constructor
      * refreshSec is null, need't refresh
      * @param dbDataSource a standard javax.sql.DataSource
-     * @param appName app id, a application has a unique app id
+     * @param appName application name
      * @param ip the ip of server which the app deployed
      * @param port the port the app used
      */
@@ -76,7 +76,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     /**
      * constructor
      * @param dbDataSource a standard javax.sql.DataSource
-     * @param appName app id, a application has a unique app id
+     * @param appName application name
      * @param ip the ip of server which the app deployed
      * @param port the port the app used
      * @param refreshSec the interval in second which is used for refresh the rules, if null needn't refresh
@@ -157,7 +157,10 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
     @Override
     public List<Map<String, Object>> readSource() throws Exception {
+        long start = System.currentTimeMillis();
         List<Map<String, Object>> list = findListMapBySql(String.format(READ_RULE_SQL, ruleTableName), new Object[]{appId});
+        int count = list != null ? 0 : list.size();
+        log.info(SentinelSupportConstant.LOG_PRIFEX + "app(" + appId + ") " + count + " rules readSource cost "+ (System.currentTimeMillis() - start) / 1000.0 + "s");
         return list;
     }
 
@@ -168,12 +171,17 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
     @Override
     public void write(T value) throws Exception {
+        long start = System.currentTimeMillis();
         String deleteSql = String.format(DELETE_RULE_SQL, ruleTableName);
         Object[] deleteSqlParameters = new Object[]{appId};
         String insertSql = initInsertSql();
         List<Object[]> insertSqlParametersList = initInsertSqlParametersList(value);
 
         deleteAndInsert(deleteSql, deleteSqlParameters, insertSql, insertSqlParametersList);
+
+        int insertCount = insertSqlParametersList == null ? 0 : insertSqlParametersList.size();
+        log.info(SentinelSupportConstant.LOG_PRIFEX + "app(" + appId + ") " + insertCount
+                + " rules write cost " + (System.currentTimeMillis() - start) / 1000.0 + "s");
     }
 
     @Override
@@ -318,7 +326,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
     /**
      * close JDBC Objects: ResultSet,PreparedStatement,Connection... which implement AutoCloseable interface
-     * @param autoCloseables
+     * @param autoCloseables JDBC Objects, which implement AutoCloseable interface
      */
     private void closeJdbcObjects(AutoCloseable ... autoCloseables) {
         if (autoCloseables == null) {
