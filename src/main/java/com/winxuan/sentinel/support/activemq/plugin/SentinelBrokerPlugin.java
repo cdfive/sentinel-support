@@ -1,5 +1,6 @@
 package com.winxuan.sentinel.support.activemq.plugin;
 
+import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
 import com.alibaba.csp.sentinel.init.InitExecutor;
@@ -47,7 +48,7 @@ public class SentinelBrokerPlugin implements BrokerPlugin {
 
     @Override
     public Broker installPlugin(Broker broker) throws Exception {
-        log("installPlugin");
+        log("installPlugin start");
 
         checkProperty("zkServer", zkServer);
         checkProperty("mqFlowRulePath", mqFlowRulePath);
@@ -59,23 +60,42 @@ public class SentinelBrokerPlugin implements BrokerPlugin {
         log("InitExecutor.doInit end");
 
         log("FlowRule zookeeper register start");
-        ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zkServer, mqFlowRulePath,
-                source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
+        ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<List<FlowRule>>(zkServer, mqFlowRulePath,
+            new Converter<String, List<FlowRule>>() {
+                @Override
+                public List<FlowRule> convert(String source) {
+                    return JSON.parseObject(source, new TypeReference<List<FlowRule>>(){});
+                }
+            }
+        );
         FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
         log("FlowRule zookeeper register end");
 
         log("DegradeRule zookeeper register start");
-        ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zkServer, mqDegradeRulePath,
-                source -> JSON.parseObject(source, new TypeReference<List<DegradeRule>>() {}));
+        ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<List<DegradeRule>>(zkServer, mqDegradeRulePath,
+            new Converter<String, List<DegradeRule>>() {
+                @Override
+                public List<DegradeRule> convert(String source) {
+                    return JSON.parseObject(source, new TypeReference<List<DegradeRule>>(){});
+                }
+            }
+        );
         DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
         log("DegradeRule zookeeper register end");
 
         log("SystemRule zookeeper register start");
-        ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zkServer, mqSystemRulePath,
-                source -> JSON.parseObject(source, new TypeReference<List<SystemRule>>() {}));
+        ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<List<SystemRule>>(zkServer, mqSystemRulePath,
+            new Converter<String, List<SystemRule>>() {
+                @Override
+                public List<SystemRule> convert(String source) {
+                    return JSON.parseObject(source, new TypeReference<List<SystemRule>>(){});
+                }
+            }
+        );
         SystemRuleManager.register2Property(systemRuleDataSource.getProperty());
         log("SystemRule zookeeper register end");
 
+        log("installPlugin end");
         return new SentinelBrokerFilter(broker);
     }
 

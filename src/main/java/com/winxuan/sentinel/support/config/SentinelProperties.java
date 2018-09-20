@@ -1,5 +1,6 @@
 package com.winxuan.sentinel.support.config;
 
+import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
 import com.alibaba.csp.sentinel.init.InitExecutor;
@@ -245,16 +246,33 @@ public class SentinelProperties {
             String systemPath = getPath(zkPath, SYSTEM_PATH);
             log(name +" systemPath=" + systemPath);
 
-            ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, flowPath
-                    , source -> JSON.parseObject(source, new TypeReference<List<FlowRule>>() {}));
+            ReadableDataSource<String, List<FlowRule>> flowRuleDataSource = new ZookeeperDataSource<List<FlowRule>>(zookeeperUrl, flowPath,
+                new Converter<String, List<FlowRule>>() {
+                @Override
+                public List<FlowRule> convert(String source) {
+                    return JSON.parseObject(source, new TypeReference<List<FlowRule>>(){});
+                }
+            });
             FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
 
-            ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, degradePath
-                    , source -> JSON.parseObject(source, new TypeReference<List<DegradeRule>>() {}));
+            ReadableDataSource<String, List<DegradeRule>> degradeRuleDataSource = new ZookeeperDataSource<List<DegradeRule>>(zookeeperUrl, degradePath,
+                new Converter<String, List<DegradeRule>>() {
+                    @Override
+                    public List<DegradeRule> convert(String source) {
+                        return JSON.parseObject(source, new TypeReference<List<DegradeRule>>(){});
+                    }
+                }
+            );
             DegradeRuleManager.register2Property(degradeRuleDataSource.getProperty());
 
-            ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<>(zookeeperUrl, systemPath
-                    , source -> JSON.parseObject(source, new TypeReference<List<SystemRule>>() {}));
+            ReadableDataSource<String, List<SystemRule>> systemRuleDataSource = new ZookeeperDataSource<List<SystemRule>>(zookeeperUrl, systemPath,
+                new Converter<String, List<SystemRule>>() {
+                    @Override
+                    public List<SystemRule> convert(String source) {
+                        return JSON.parseObject(source, new TypeReference<List<SystemRule>>(){});
+                    }
+                }
+            );
             SystemRuleManager.register2Property(systemRuleDataSource.getProperty());
         }
     }
