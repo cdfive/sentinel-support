@@ -144,7 +144,8 @@ public class SentinelProperties {
 
         String transportPort = TransportConfig.getPort();
         if (StringUtils.isEmpty(transportPort)) {
-            throw new IllegalArgumentException("can't get transport port, check start JVM argment -Dcsp.sentinel.api.port=xxx");
+            logError("can't get transport port, check start JVM argment -Dcsp.sentinel.api.port=xxx");
+            return;
         }
         Integer port = Integer.parseInt(transportPort);
         log("port=" + port);
@@ -299,6 +300,10 @@ public class SentinelProperties {
         return result;
     }
 
+    private static void logDebug(String info) {
+        log.debug(SentinelSupportConstant.LOG_PRIFEX + info);
+    }
+
     private static void log(String info) {
         log.info(SentinelSupportConstant.LOG_PRIFEX + info);
     }
@@ -307,7 +312,7 @@ public class SentinelProperties {
         log.warn(SentinelSupportConstant.LOG_PRIFEX + info);
     }
 
-    private static void logDebug(String info) {
-        log.debug(SentinelSupportConstant.LOG_PRIFEX + info);
+    private static void logError(String info) {
+        log.error(SentinelSupportConstant.LOG_PRIFEX + info);
     }
 }

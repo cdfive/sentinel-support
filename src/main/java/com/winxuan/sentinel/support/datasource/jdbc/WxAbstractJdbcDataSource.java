@@ -100,7 +100,9 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
         this.ruleTableName = initRuleTableName();
         checkNotEmpty(ruleTableName, "ruleTableName can't be null or empty");
 
-        initAppId();
+        if (!initAppId()) {
+            return;
+        }
 
         loadData();
 
@@ -111,15 +113,20 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
     /**
      * query app id from db by appName,ip,port
+     * @return true-init success false-init failed
      */
-    private void initAppId() {
+    private boolean initAppId() {
         Object object = findObjectBySql(FIND_APP_ID_SQL, new Object[]{appName, ip, port});
 
-        Assert.notNull(object, "can't find appId,appName=" + appName + ",ip=" + ip + ",port=" + port);
+        if (object == null) {
+            log.error("can't find appId,appName=" + appName + ",ip=" + ip + ",port=" + port);
+            return false;
+        }
 
         this.appId = Integer.parseInt(object.toString());
 
         log.info(SentinelSupportConstant.LOG_PRIFEX + this.getClass().getSimpleName() + " appId=" + appId);
+        return true;
     }
 
     /**
