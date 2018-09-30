@@ -21,7 +21,7 @@ sentinel学习以及方便接入
 <dependency>
     <groupId>com.winxuan</groupId>
     <artifactId>sentinel-support</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0-RELEASE</version>
 </dependency>
 ```
 
@@ -43,10 +43,12 @@ sentinel.dataSource.jdbc.username=root
 sentinel.dataSource.jdbc.password=root
 ```
 
+> 如果各环境(开发、测试、生产)数据库不同，可考虑配置文件用${...}结合maven profile来配置数据库连接参数
+
 * zookeeper作为数据源:
 
 ```
-# 是否启用,默认true
+# 是否启用,默认false
 sentinel.enable=true
 
 # dataSource类型,zookeeper或jdbc,默认jdbc
