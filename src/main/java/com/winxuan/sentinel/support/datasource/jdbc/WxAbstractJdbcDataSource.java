@@ -61,16 +61,16 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     /**the refresh backgound thread service*/
     private ScheduledExecutorService refreshService;
 
+
     /**
      * constructor
-     * refreshSec is null, need't refresh
      * @param dbDataSource a standard javax.sql.DataSource
      * @param appName application name
      * @param ip the ip of server which the app deployed
      * @param port the port the app used
      */
     public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port)  {
-        this(dbDataSource, appName, ip, port, null);
+        this(dbDataSource, null, appName, ip, port);
     }
 
     /**
@@ -81,7 +81,36 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      * @param port the port the app used
      * @param refreshSec the interval in second which is used for refresh the rules, if null needn't refresh
      */
-    public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec) {
+    public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec)  {
+        this(dbDataSource, null, appName, ip, port, refreshSec);
+    }
+
+    /**
+     * constructor
+     * @param dbDataSource a standard javax.sql.DataSource
+     * @param appId application id
+     * @param appName application name
+     * @param ip the ip of server which the app deployed
+     * @param port the port the app used
+     *
+     * if appId is null, query from database by appName,ip and prot
+     */
+    public WxAbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port)  {
+        this(dbDataSource, appId, appName, ip, port, null);
+    }
+
+    /**
+     * constructor
+     * @param dbDataSource a standard javax.sql.DataSource
+     * @param appId application id
+     * @param appName application name
+     * @param ip the ip of server which the app deployed
+     * @param port the port the app used
+     * @param refreshSec the interval in second which is used for refresh the rules, if null needn't refresh
+     *
+     * if appId is null, query from database by appName,ip and prot
+     */
+    public WxAbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
         checkNotNull(dbDataSource, "javax.sql.DataSource dbDataSource can't be null");
         checkNotEmpty(appName, "appName can't be null or empty");
 
@@ -100,8 +129,12 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
         this.ruleTableName = initRuleTableName();
         checkNotEmpty(ruleTableName, "ruleTableName can't be null or empty");
 
-        if (!initAppId()) {
-            return;
+        if (appId == null) {
+            if (!initAppId()) {
+                return;
+            }
+        } else {
+            this.appId = appId;
         }
 
         loadData();
@@ -125,7 +158,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
         this.appId = Integer.parseInt(object.toString());
 
-        log.info(SentinelSupportConstant.LOG_PRIFEX + this.getClass().getSimpleName() + " appId=" + appId);
+        log.info(SentinelSupportConstant.LOG_PRIFEX + this.getClass().getSimpleName() + " initAppId, appId=" + appId);
         return true;
     }
 
@@ -332,20 +365,35 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
     }
 
     /**
-     * close JDBC Objects: ResultSet,PreparedStatement,Connection... which implement AutoCloseable interface
-     * @param autoCloseables JDBC Objects, which implement AutoCloseable interface
+     * close JDBC Objects: ResultSet,PreparedStatement,Connection...
+     * @param jdbcObjects JDBC Objects: ResultSet,PreparedStatement,Connection...
      */
-    private void closeJdbcObjects(AutoCloseable ... autoCloseables) {
-        if (autoCloseables == null) {
+    private void closeJdbcObjects(Object ... jdbcObjects) {
+        if (jdbcObjects == null) {
             return;
         }
 
-        for (AutoCloseable autoCloseable : autoCloseables) {
-            if (autoCloseable != null) {
+        for (Object jdbcObject : jdbcObjects) {
+            if (jdbcObject != null) {
+                if (jdbcObject instanceof ResultSet)
                 try {
-                    autoCloseable.close();
+                    ((ResultSet)jdbcObject).close();
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+
+                if (jdbcObject instanceof Statement)
+                    try {
+                        ((Statement)jdbcObject).close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                }
+
+                if (jdbcObject instanceof Connection)
+                    try {
+                        ((Connection)jdbcObject).close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
                 }
             }
         }

@@ -29,6 +29,14 @@ public class WxDegradeJdbcDataSource extends WxAbstractJdbcDataSource<List<Degra
         super(dbDataSource, appName, ip, port, refreshSec);
     }
 
+    public WxDegradeJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port) {
+        super(dbDataSource, appId, appName, ip, port);
+    }
+
+    public WxDegradeJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
+        super(dbDataSource, appId, appName, ip, port, refreshSec);
+    }
+
     @Override
     protected String initRuleTableName() {
         return DEGRADE_RULE_TABLE;

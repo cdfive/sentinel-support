@@ -28,6 +28,14 @@ public class WxFlowJdbcDataSource extends WxAbstractJdbcDataSource<List<FlowRule
         super(dbDataSource, appName, ip, port, refreshSec);
     }
 
+    public WxFlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port) {
+        super(dbDataSource, appId, appName, ip, port);
+    }
+
+    public WxFlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
+        super(dbDataSource, appId, appName, ip, port, refreshSec);
+    }
+
     @Override
     protected String initRuleTableName() {
         return FLOW_RULE_TABLE;

@@ -214,16 +214,19 @@ public class SentinelProperties {
         if (testOnReturn != null) { sentinelDbDataSource.setTestOnReturn(testOnReturn); }
 
         WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDbDataSource, appName, ip, port);
-        FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
-        WritableDataSourceRegistry.registerFlowDataSource(flowRuleDataSource);
+        Integer appId = flowRuleDataSource.getAppId();
+        if (appId != null) {
+            FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
+            WritableDataSourceRegistry.registerFlowDataSource(flowRuleDataSource);
 
-        WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDbDataSource, appName, ip, port);
-        DegradeRuleManager.register2Property(degradeJdbcDataSource.getProperty());
-        WritableDataSourceRegistry.registerDegradeDataSource(degradeJdbcDataSource);
+            WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
+            DegradeRuleManager.register2Property(degradeJdbcDataSource.getProperty());
+            WritableDataSourceRegistry.registerDegradeDataSource(degradeJdbcDataSource);
 
-        WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDbDataSource, appName, ip, port);
-        SystemRuleManager.register2Property(systemJdbcDataSource.getProperty());
-        WritableDataSourceRegistry.registerSystemDataSource(systemJdbcDataSource);
+            WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
+            SystemRuleManager.register2Property(systemJdbcDataSource.getProperty());
+            WritableDataSourceRegistry.registerSystemDataSource(systemJdbcDataSource);
+        }
     }
 
     private void initZookeeperDataSource() {

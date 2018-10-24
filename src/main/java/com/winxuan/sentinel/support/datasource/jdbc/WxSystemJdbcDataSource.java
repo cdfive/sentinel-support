@@ -29,6 +29,14 @@ public class WxSystemJdbcDataSource extends WxAbstractJdbcDataSource<List<System
         super(dbDataSource, appName, ip, port, refreshSec);
     }
 
+    public WxSystemJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port) {
+        super(dbDataSource, appId, appName, ip, port);
+    }
+
+    public WxSystemJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
+        super(dbDataSource, appId, appName, ip, port, refreshSec);
+    }
+
     @Override
     protected String initRuleTableName() {
         return SYSTEM_RULE_TABLE;
