@@ -1,5 +1,6 @@
 package com.winxuan.sentinel.support.config;
 
+import com.alibaba.csp.sentinel.Constants;
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
 import com.alibaba.csp.sentinel.datasource.zookeeper.ZookeeperDataSource;
@@ -123,6 +124,7 @@ public class SentinelProperties {
         log(this.toString());
 
         if (!enable) {
+            Constants.ON = false;
             logDebug("sentinel is not enable");
             return;
         }

@@ -375,25 +375,28 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
         for (Object jdbcObject : jdbcObjects) {
             if (jdbcObject != null) {
-                if (jdbcObject instanceof ResultSet)
-                try {
-                    ((ResultSet)jdbcObject).close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                if (jdbcObject instanceof Statement)
+                if (jdbcObject instanceof ResultSet) {
                     try {
-                        ((Statement)jdbcObject).close();
+                        ((ResultSet) jdbcObject).close();
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
                 }
 
-                if (jdbcObject instanceof Connection)
+                if (jdbcObject instanceof Statement) {
                     try {
-                        ((Connection)jdbcObject).close();
+                        ((Statement) jdbcObject).close();
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                }
+
+                if (jdbcObject instanceof Connection) {
+                    try {
+                        ((Connection) jdbcObject).close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
