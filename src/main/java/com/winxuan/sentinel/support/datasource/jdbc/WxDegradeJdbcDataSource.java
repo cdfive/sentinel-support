@@ -57,6 +57,7 @@ public class WxDegradeJdbcDataSource extends WxAbstractJdbcDataSource<List<Degra
             degradeRule.setLimitApp(getMapStringVal(map, "limit_app"));
             degradeRule.setGrade(getMapIntVal(map, "grade"));
             degradeRule.setCount(getMapDoubleVal(map, "_count"));
+            degradeRule.setTimeWindow(getMapIntVal(map, "time_window"));
         }
 
         return degradeRules;
