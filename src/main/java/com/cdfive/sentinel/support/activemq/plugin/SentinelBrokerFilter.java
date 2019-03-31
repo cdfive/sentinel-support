@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.activemq.plugin;
+package com.cdfive.sentinel.support.activemq.plugin;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;

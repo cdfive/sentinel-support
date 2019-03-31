@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.datasource.jdbc;
+package com.cdfive.sentinel.support.datasource.jdbc;
 
 import com.alibaba.csp.sentinel.slots.block.flow.FlowRule;
 
@@ -12,7 +12,7 @@ import java.util.Map;
  * @author cdfive
  * @date 2018-09-08
  */
-public class WxFlowJdbcDataSource extends WxAbstractJdbcDataSource<List<FlowRule>> {
+public class FlowJdbcDataSource extends AbstractJdbcDataSource<List<FlowRule>> {
 
     private static final String FLOW_RULE_TABLE = "sentinel_flow_rule";
 
@@ -20,19 +20,19 @@ public class WxFlowJdbcDataSource extends WxAbstractJdbcDataSource<List<FlowRule
             + " (app_id,resource,limit_app,grade,_count,strategy,ref_resource,control_behavior,warm_up_period_sec,max_queueing_time_ms,create_time,update_time,enabled,deleted)"
             + " VALUES(?,?,?,?,?,?,?,?,?,?,NOW(),NOW(),1,0)";
 
-    public WxFlowJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port) {
+    public FlowJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port) {
         super(dbDataSource, appName, ip, port);
     }
 
-    public WxFlowJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec) {
+    public FlowJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec) {
         super(dbDataSource, appName, ip, port, refreshSec);
     }
 
-    public WxFlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port) {
+    public FlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port) {
         super(dbDataSource, appId, appName, ip, port);
     }
 
-    public WxFlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
+    public FlowJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
         super(dbDataSource, appId, appName, ip, port, refreshSec);
     }
 

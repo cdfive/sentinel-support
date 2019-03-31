@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.datasource.jdbc;
+package com.cdfive.sentinel.support.datasource.jdbc;
 
 import com.alibaba.csp.sentinel.concurrent.NamedThreadFactory;
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
@@ -6,9 +6,10 @@ import com.alibaba.csp.sentinel.datasource.WritableDataSource;
 import com.alibaba.csp.sentinel.log.RecordLog;
 import com.alibaba.csp.sentinel.property.DynamicSentinelProperty;
 import com.alibaba.csp.sentinel.property.SentinelProperty;
-import com.winxuan.sentinel.support.SentinelSupportConstant;
+import com.cdfive.sentinel.support.SentinelSupportConstant;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * @date 2018-09-08
  */
 @Slf4j
-public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<List<Map<String, Object>>, T>, WritableDataSource<T> {
+public abstract class AbstractJdbcDataSource<T> implements ReadableDataSource<List<Map<String, Object>>, T>, WritableDataSource<T> {
 
     /**
      * sql: find app_id by appName,ip,port, only enabled and not deleted
@@ -43,22 +44,48 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
 
 
     /**for getProperty() and update value, use DynamicSentinelProperty as implement*/
+    @Getter
+    @Setter
     private SentinelProperty<T> property;
+
     /**a standard javax.sql.DataSource*/
+    @Getter
+    @Setter
     private DataSource dbDataSource;
+
     /**app id, a application has a unique app id*/
+    @Getter
+    @Setter
     private Integer appId;
+
     /**app name, the application name*/
+    @Getter
+    @Setter
     private String appName;
+
     /**the ip of server which the app deployed*/
+    @Getter
+    @Setter
     private String ip;
+
     /**the port the app used*/
+    @Getter
+    @Setter
     private Integer port;
+
     /**the rule table which store the rule's value, init value in subclass @see,initRuleTableName*/
+    @Getter
+    @Setter
     private String ruleTableName;
+
     /**the interval in second which is used for refresh the rules, if null needn't refresh*/
+    @Getter
+    @Setter
     private Long refreshSec;
+
     /**the refresh backgound thread service*/
+    @Getter
+    @Setter
     private ScheduledExecutorService refreshService;
 
 
@@ -69,7 +96,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      * @param ip the ip of server which the app deployed
      * @param port the port the app used
      */
-    public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port)  {
+    public AbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port)  {
         this(dbDataSource, null, appName, ip, port);
     }
 
@@ -81,7 +108,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      * @param port the port the app used
      * @param refreshSec the interval in second which is used for refresh the rules, if null needn't refresh
      */
-    public WxAbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec)  {
+    public AbstractJdbcDataSource(DataSource dbDataSource, String appName, String ip, Integer port, Long refreshSec)  {
         this(dbDataSource, null, appName, ip, port, refreshSec);
     }
 
@@ -95,7 +122,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      *
      * if appId is null, query from database by appName,ip and prot
      */
-    public WxAbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port)  {
+    public AbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port)  {
         this(dbDataSource, appId, appName, ip, port, null);
     }
 
@@ -110,7 +137,7 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
      *
      * if appId is null, query from database by appName,ip and prot
      */
-    public WxAbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
+    public AbstractJdbcDataSource(DataSource dbDataSource, Integer appId, String appName, String ip, Integer port, Long refreshSec) {
         checkNotNull(dbDataSource, "javax.sql.DataSource dbDataSource can't be null");
         checkNotEmpty(appName, "appName can't be null or empty");
 
@@ -517,67 +544,5 @@ public abstract class WxAbstractJdbcDataSource<T> implements ReadableDataSource<
          * @return the parsed result of type T
          */
         T parseVal(String strVal);
-    }
-
-
-    /**getters and setters*/
-    public void setProperty(SentinelProperty<T> property) {
-        this.property = property;
-    }
-
-    public DataSource getDbDataSource() {
-        return dbDataSource;
-    }
-
-    public void setDbDataSource(DataSource dbDataSource) {
-        this.dbDataSource = dbDataSource;
-    }
-
-    public Integer getAppId() {
-        return appId;
-    }
-
-    public void setAppId(Integer appId) {
-        this.appId = appId;
-    }
-
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public void setIp(String ip) {
-        this.ip = ip;
-    }
-
-    public Integer getPort() {
-        return port;
-    }
-
-    public void setPort(Integer port) {
-        this.port = port;
-    }
-
-    public String getRuleTableName() {
-        return ruleTableName;
-    }
-
-    public void setRuleTableName(String ruleTableName) {
-        this.ruleTableName = ruleTableName;
-    }
-
-    public Long getRefreshSec() {
-        return refreshSec;
-    }
-
-    public void setRefreshSec(Long refreshSec) {
-        this.refreshSec = refreshSec;
     }
 }

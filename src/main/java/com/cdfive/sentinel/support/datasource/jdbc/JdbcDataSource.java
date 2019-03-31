@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.datasource.jdbc;
+package com.cdfive.sentinel.support.datasource.jdbc;
 
 import com.alibaba.csp.sentinel.datasource.AutoRefreshDataSource;
 import com.alibaba.csp.sentinel.datasource.Converter;
@@ -50,7 +50,7 @@ import java.util.Map;
  * @author cdfive
  * @date 2018-09-01
  */
-@Deprecated // @see WxAbstractJdbcDataSource,WxFlowJdbcDataSource,WxDegradeJdbcDataSource,WxSystemJdbcDataSource
+@Deprecated // @see AbstractJdbcDataSource,FlowJdbcDataSource,DegradeJdbcDataSource,SystemJdbcDataSource
 public class JdbcDataSource<T> extends AutoRefreshDataSource<List<Map<String, Object>>, T> {
 
     /**

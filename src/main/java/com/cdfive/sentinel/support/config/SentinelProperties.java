@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.config;
+package com.cdfive.sentinel.support.config;
 
 import com.alibaba.csp.sentinel.Constants;
 import com.alibaba.csp.sentinel.datasource.Converter;
@@ -18,11 +18,11 @@ import com.alibaba.csp.sentinel.util.HostNameUtil;
 import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.winxuan.sentinel.support.SentinelSupportConstant;
-import com.winxuan.sentinel.support.activemq.aspect.MessageListenerAspect;
-import com.winxuan.sentinel.support.datasource.jdbc.WxDegradeJdbcDataSource;
-import com.winxuan.sentinel.support.datasource.jdbc.WxFlowJdbcDataSource;
-import com.winxuan.sentinel.support.datasource.jdbc.WxSystemJdbcDataSource;
+import com.cdfive.sentinel.support.datasource.jdbc.DegradeJdbcDataSource;
+import com.cdfive.sentinel.support.datasource.jdbc.FlowJdbcDataSource;
+import com.cdfive.sentinel.support.datasource.jdbc.SystemJdbcDataSource;
+import com.cdfive.sentinel.support.SentinelSupportConstant;
+import com.cdfive.sentinel.support.activemq.aspect.MessageListenerAspect;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -215,17 +215,17 @@ public class SentinelProperties {
         if (testWhileIdle != null) { sentinelDbDataSource.setTestWhileIdle(testWhileIdle); }
         if (testOnReturn != null) { sentinelDbDataSource.setTestOnReturn(testOnReturn); }
 
-        WxFlowJdbcDataSource flowRuleDataSource = new WxFlowJdbcDataSource(sentinelDbDataSource, appName, ip, port);
+        FlowJdbcDataSource flowRuleDataSource = new FlowJdbcDataSource(sentinelDbDataSource, appName, ip, port);
         Integer appId = flowRuleDataSource.getAppId();
         if (appId != null) {
             FlowRuleManager.register2Property(flowRuleDataSource.getProperty());
             WritableDataSourceRegistry.registerFlowDataSource(flowRuleDataSource);
 
-            WxDegradeJdbcDataSource degradeJdbcDataSource = new WxDegradeJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
+            DegradeJdbcDataSource degradeJdbcDataSource = new DegradeJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
             DegradeRuleManager.register2Property(degradeJdbcDataSource.getProperty());
             WritableDataSourceRegistry.registerDegradeDataSource(degradeJdbcDataSource);
 
-            WxSystemJdbcDataSource systemJdbcDataSource = new WxSystemJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
+            SystemJdbcDataSource systemJdbcDataSource = new SystemJdbcDataSource(sentinelDbDataSource, appId, appName, ip, port);
             SystemRuleManager.register2Property(systemJdbcDataSource.getProperty());
             WritableDataSourceRegistry.registerSystemDataSource(systemJdbcDataSource);
         }

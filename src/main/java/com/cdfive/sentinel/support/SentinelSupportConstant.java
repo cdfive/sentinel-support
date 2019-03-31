@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support;
+package com.cdfive.sentinel.support;
 
 /**
  * 常量类

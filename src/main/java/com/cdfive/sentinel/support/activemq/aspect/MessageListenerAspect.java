@@ -1,11 +1,11 @@
-package com.winxuan.sentinel.support.activemq.aspect;
+package com.cdfive.sentinel.support.activemq.aspect;
 
 import com.alibaba.csp.sentinel.Entry;
 import com.alibaba.csp.sentinel.EntryType;
 import com.alibaba.csp.sentinel.SphU;
 import com.alibaba.csp.sentinel.context.ContextUtil;
 import com.alibaba.csp.sentinel.slots.block.BlockException;
-import com.winxuan.sentinel.support.SentinelSupportConstant;
+import com.cdfive.sentinel.support.SentinelSupportConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.activemq.command.ActiveMQMessage;
 import org.aspectj.lang.ProceedingJoinPoint;

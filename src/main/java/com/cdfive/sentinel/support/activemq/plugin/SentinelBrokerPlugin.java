@@ -1,4 +1,4 @@
-package com.winxuan.sentinel.support.activemq.plugin;
+package com.cdfive.sentinel.support.activemq.plugin;
 
 import com.alibaba.csp.sentinel.datasource.Converter;
 import com.alibaba.csp.sentinel.datasource.ReadableDataSource;
