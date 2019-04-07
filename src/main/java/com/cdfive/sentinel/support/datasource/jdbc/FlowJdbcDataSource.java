@@ -10,7 +10,6 @@ import java.util.Map;
 /**
  * flow rule JdbcDataSource
  * @author cdfive
- * @date 2018-09-08
  */
 public class FlowJdbcDataSource extends AbstractJdbcDataSource<List<FlowRule>> {
 

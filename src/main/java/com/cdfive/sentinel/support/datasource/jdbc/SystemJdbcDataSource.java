@@ -10,7 +10,6 @@ import java.util.Map;
 /**
  * system rule JdbcDataSource
  * @author cdfive
- * @date 2018-09-08
  */
 public class SystemJdbcDataSource extends AbstractJdbcDataSource<List<SystemRule>> {
 

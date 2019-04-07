@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * abstract JdbcDataSource
  * @author cdfive
- * @date 2018-09-08
  */
 @Slf4j
 public abstract class AbstractJdbcDataSource<T> implements ReadableDataSource<List<Map<String, Object>>, T>, WritableDataSource<T> {

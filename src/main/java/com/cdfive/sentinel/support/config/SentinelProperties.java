@@ -39,7 +39,6 @@ import java.util.List;
  * 暂时仅支持jdbc、zookeeper数据源
  *
  * @author cdfive
- * @date 2018-08-29
  */
 @Slf4j
 @Data
@@ -71,13 +70,10 @@ public class SentinelProperties {
     /**============jdbc datasource配置============*/
     @Value("${sentinel.dataSource.jdbc.driverClassName:#{null}}")
     private String driverClassName;
-
     @Value("${sentinel.dataSource.jdbc.url:#{null}}")
     private String url;
-
     @Value("${sentinel.dataSource.jdbc.username:#{null}}")
     private String username;
-
     @Value("${sentinel.dataSource.jdbc.password:#{null}}")
     private String password;
 

@@ -18,7 +18,6 @@ import javax.jms.Message;
 /**
  * JMS的MessageListener.onMessage，通过aspectj的aop方式加入sentinel埋点
  * @author cdfive
- * @date 2018-08-29
  */
 @Slf4j
 @Aspect
@@ -42,10 +41,10 @@ public class MessageListenerAspect {
         Entry entry = null;
         try {
             ContextUtil.enter(name);
-            entry = SphU.entry(name, EntryType.OUT);
+            entry = SphU.entry(name, EntryType.IN);
             pjp.proceed();
         } catch (BlockException ex) {
-            System.out.println("Blocked: ");
+            log.warn("blocked=>name: " + name);
         } finally {
             if (entry != null) {
                 entry.exit();

@@ -10,7 +10,6 @@ import java.util.Map;
 /**
  * degrade rule JdbcDataSource
  * @author cdfive
- * @date 2018-09-08
  */
 public class DegradeJdbcDataSource extends AbstractJdbcDataSource<List<DegradeRule>> {
 

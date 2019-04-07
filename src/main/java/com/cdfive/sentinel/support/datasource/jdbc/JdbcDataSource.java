@@ -48,7 +48,6 @@ import java.util.Map;
  *
  * </p>
  * @author cdfive
- * @date 2018-09-01
  */
 @Deprecated // @see AbstractJdbcDataSource,FlowJdbcDataSource,DegradeJdbcDataSource,SystemJdbcDataSource
 public class JdbcDataSource<T> extends AutoRefreshDataSource<List<Map<String, Object>>, T> {

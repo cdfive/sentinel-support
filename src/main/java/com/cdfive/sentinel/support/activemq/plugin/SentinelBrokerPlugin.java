@@ -24,7 +24,6 @@ import java.util.List;
 /**
  * Sentinel的activemq broker插件
  * @author cdfive
- * @date 2018-08-27
  */
 @Slf4j
 @Setter

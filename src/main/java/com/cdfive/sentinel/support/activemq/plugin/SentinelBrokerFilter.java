@@ -14,7 +14,6 @@ import org.apache.activemq.command.Message;
 /**
  * Sentinel的activemq broker过滤器
  * @author cdfive
- * @date 2018-08-27
  */
 @Slf4j
 public class SentinelBrokerFilter extends BrokerFilter {
@@ -35,11 +34,11 @@ public class SentinelBrokerFilter extends BrokerFilter {
         Entry entry = null;
         try {
             ContextUtil.enter(name);
-            entry = SphU.entry(name, EntryType.IN);
+            entry = SphU.entry(name, EntryType.OUT);
             log("send message=>" + messageSend.getMessage().getMessageId().toString());
             super.send(producerExchange, messageSend);
         } catch (BlockException ex) {
-            logWarn("Blocked=>" + messageSend.getMessage().getMessageId().toString());
+            logWarn("blocked=>" + messageSend.getMessage().getMessageId().toString());
         } finally {
             if (entry != null) {
                 entry.exit();
